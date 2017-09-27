@@ -65,7 +65,7 @@ def configure_logging(stream=None,
         fh = RotatingFileHandler(
             filename, maxBytes=10 * 1024 * 1024, backupCount=3)
         fh.setLevel(file_level)
-        sh.setFormatter(formatter)
+        fh.setFormatter(formatter)
         root.addHandler(fh)
 
 

@@ -111,6 +111,11 @@ def auto(conf, stop_if_praised=False, force_comment=True, start_page=1):
     logger.info('Login done!')
     url_pattern = \
         'https://www.trustie.net/users/14ShaoCC/user_activities?page={}'
+    # go to page
+    if page > 1:
+        logging.info('Going to page number %r', page)
+        with wait_for_page_load(driver, timeout=TIMEOUT):
+            driver.get(url_pattern.format(page))
     while True:
         logger.info('Collecting links for page number %r', page)
         links = collect_links(driver)
@@ -126,7 +131,7 @@ def auto(conf, stop_if_praised=False, force_comment=True, start_page=1):
                 continue
             try:
                 logger.info('Praising %r ...', link)
-                is_praised_before = praise(driver)
+                is_praised_before = not praise(driver)
                 if is_praised_before is True and stop_if_praised is True:
                     break
                 if is_praised_before is True and force_comment is False:
@@ -139,10 +144,10 @@ def auto(conf, stop_if_praised=False, force_comment=True, start_page=1):
                 continue
         page += 1
         url = url_pattern.format(page)
-        try:
-            driver.get(url)
-        except WebDriverException as e:
-            logger.error(e)
-            break
+        with wait_for_page_load(driver, timeout=TIMEOUT):
+            try:
+                driver.get(url)
+            except WebDriverException as e:
+                logger.error(e)
+                break
         logger.info('Current page=%s', page)
-        break
